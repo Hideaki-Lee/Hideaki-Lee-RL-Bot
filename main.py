@@ -7,9 +7,19 @@ from util.tools import *
 class Bot(GoslingAgent):
     # This function runs every in-game tick (every time the game updates anything)
     def run(self):
-        # if self.kickoff_flag:
-        #     self.set_intent(kickoff())
-        #     return
+        if self.kickoff_flag:
+            self.set_intent(kickoff())
+            return
+
+        if self.intent is not None:
+            return
+        d1 = abs(self.ball.location.y - self.foe_goal.location.y)
+        d2 = abs(self.me.location.y - self.foe_goal.location.y)
+        if d1 > d2:
+            self.set_intent(goto(self.friend_goal.location))
+            self.set_intent(short_shot(self.ball.location))
+            return
+        
         available_boosts = [boost for boost in self.boosts if boost.large]
         closest_boost = None
         closest_distance = 10000
@@ -19,35 +29,25 @@ class Bot(GoslingAgent):
                 closest_boost = boost
                 closest_distance = distance 
                 return
-        self.set_intent(goto_boost)
-
-        # if self.intent is not None:
-        #     return
-        # d1 = abs(self.ball.location.y - self.foe_goal.location.y)
-        # d2 = abs(self.me.location.y - self.foe_goal.location.y)
-        # if d1 > d2:
-        #     self.set_intent(goto(self.friend_goal.location))
-        #     self.set_intent(short_shot(self.ball.location))
-        #     return
+            
+        if self.me.boost < 90:
+            available_large_boosts = [boost for boost in self.boosts if boost.large and boost.active]
+            if len(available_large_boosts) is True:
+                self.set_intent(goto(available_large_boosts[0].location))
+            return
         
-        # if self.me.boost < 90:
-        #     available_large_boosts = [boost for boost in self.boosts if boost.large and boost.active]
-        #     if len(available_large_boosts) is True:
-        #         self.set_intent(goto(available_large_boosts[0].location))
-        #     return
-        
-        # if self.set_intent is None:
-        #     targets = {
-        #         'at_opponent_goal': (self.foe_goal.left_post, self.foe_goal.right_post),
-        #         'away_from_our_net': (self.friend_goal.right_post, self.friend_goal.left_post)
-        #     }
-        #     hits = find_hits(self, targets)
-        #     if len(hits['to_opponents_goal']) > 0:
-        #         self.set_intent(hits['to_opponents_goal'][0])
-        #         return
-        #     if len(hits['away_from_our_net']) > 0:
-        #         self.set_intent(hits['away_from_our_net'][0])
-        #         return
+        if self.set_intent is None:
+            targets = {
+                'at_opponent_goal': (self.foe_goal.left_post, self.foe_goal.right_post),
+                'away_from_our_net': (self.friend_goal.right_post, self.friend_goal.left_post)
+            }
+            hits = find_hits(self, targets)
+            if len(hits['to_opponents_goal']) > 0:
+                self.set_intent(hits['to_opponents_goal'][0])
+                return
+            if len(hits['away_from_our_net']) > 0:
+                self.set_intent(hits['away_from_our_net'][0])
+                return
         
 
 
