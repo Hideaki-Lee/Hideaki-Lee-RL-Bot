@@ -10,7 +10,6 @@ class Bot(GoslingAgent):
         
         if self.kickoff_flag:
             self.set_intent(kickoff())
-            self.set_intent(atba())
             return
         
         available_boosts = [boost for boost in self.boosts if boost.large]
